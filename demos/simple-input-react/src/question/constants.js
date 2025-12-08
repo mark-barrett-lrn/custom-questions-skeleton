@@ -5,4 +5,4 @@
  * Instead, you should add a prefix to it like `.company-name-my-custom-question-btn`
  * to avoid CSS conflict with the host page and the CSS used by the Learnosity API.
  */
-export const PREFIX = 'lrn-custom-question';
+export const PREFIX = "lrn-code-challenge";

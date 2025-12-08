@@ -1,7 +1,7 @@
-import { PREFIX } from "./constants";
 import React from "react";
+import { PREFIX } from "./constants";
 import ReactDOM from "react-dom/client";
-import SimpleInput from "./components/simpleInput";
+import Editor from "./components/editor";
 import { get } from "lodash";
 
 export default class Question {
@@ -19,6 +19,11 @@ export default class Question {
 
       if (init.state === "review") {
         init.getFacade().disable();
+      }
+
+      let wrapper = document.getElementById(init.question.response_id);
+      if (wrapper) {
+        wrapper.classList.add(`${PREFIX}-wrapper`);
       }
 
       init.events.trigger("ready");
@@ -71,7 +76,7 @@ export default class Question {
     const resetState = this.componentStates.resetState || null;
 
     reactRoot.render(
-      <SimpleInput
+      <Editor
         state={state}
         maxLength={question.max_length}
         responseValue={response || ""}

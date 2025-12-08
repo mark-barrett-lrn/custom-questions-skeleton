@@ -1,1 +1,8 @@
 @import "variables";
+
+.lrn-code-challenge-wrapper {
+  @import "question";
+
+  display: flex;
+  flex-direction: row;
+}
