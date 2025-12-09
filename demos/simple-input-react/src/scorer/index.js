@@ -7,21 +7,60 @@ export default class Scorer {
     this.validResponse = get(question, "valid_response");
   }
 
+  checkTestCase(testCase) {
+    try {
+      // 1. Prepare the code
+      // We append "; return functionName;" so we can extract the function handle
+      // regardless of how the user defined it (var, const, or function keyword)
+      const executableCode = `${this.responseValue}; return solution;`;
+
+      console.log(executableCode);
+
+      // 2. Instantiate
+      const createFunc = new Function(executableCode);
+      const userFunc = createFunc();
+
+      // 3. Prepare Arguments (Deep Copy to prevent mutation issues)
+      const args = Object.keys(testCase.input).map((key) => {
+        // Handle cases where the key might not exist in the object safely
+        const val = testCase.input[key];
+        return typeof val === "object" && val !== null
+          ? JSON.parse(JSON.stringify(val))
+          : val;
+      });
+
+      // 4. EXECUTE & CAPTURE RETURN VALUE
+      // This is the key change: we store the result of the call
+      const result = userFunc(...args);
+
+      return {
+        correct: result == testCase.output,
+        // defines if the execution was successful or not
+        success: true,
+        result: result,
+        input: testCase.input,
+        output: testCase.output,
+      };
+    } catch (error) {
+      return {
+        correct: false,
+        success: false,
+        input: testCase.input,
+        output: testCase.output,
+        error: error.toString(), // e.g. "ReferenceError: maxSubArray is not defined"
+      };
+    }
+  }
+
   /**
    * Check if the current question's response is valid or not
    * (Required)
    * @returns {boolean}
    */
   isValid() {
-    // const { responseValue, validResponse } = this;
-    console.log(this.responseValue);
-
-    // const results = this.question.test_cases.map((testCase) =>
-    //   this.checkTestCase(testCase)
-    // );
-
-    // return results.every((result) => result.correct);
-    return true;
+    return this.question.test_cases.map((testCase) =>
+      this.checkTestCase(testCase)
+    );
   }
 
   /**

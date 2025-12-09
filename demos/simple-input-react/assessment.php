@@ -10,7 +10,7 @@ $request = '{
         {
           "response_id": "' . $responseId . '",
           "type": "custom",
-          "stimulus": "<p>\n  Given an integer array <code>nums</code>, find the\n  <strong>subarray</strong> with the largest sum, and return <em>its sum</em>.\n</p>\n",
+          "stimulus": "<h2>Maximum Subarray</h2><br/><p>\n  Given an integer array <code>nums</code>, find the\n  <strong>subarray</strong> with the largest sum, and return <em>its sum</em>.\n</p>\n<br />\n<p><strong>Example 1:</strong></p>\n<pre><strong>Input:</strong> nums = [-2,1,-3,4,-1,2,1,-5,4]\n<strong>Output:</strong> 6\n<strong>Explanation:</strong> The subarray [4,-1,2,1] has the largest sum 6.\n</pre>\n",
           "test_cases": [
             {
                 "input": {

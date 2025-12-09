@@ -2,6 +2,7 @@ import React from "react";
 import { PREFIX } from "./constants";
 import ReactDOM from "react-dom/client";
 import Editor from "./components/editor";
+import Hints from "./components/hints";
 import { get } from "lodash";
 
 export default class Question {
@@ -25,6 +26,31 @@ export default class Question {
       if (wrapper) {
         wrapper.classList.add(`${PREFIX}-wrapper`);
       }
+
+      const stimulusCollection = wrapper.getElementsByClassName("lrn_stimulus");
+
+      this.hintsMountPoint = document.createElement("div");
+      this.hintsMountPoint.className = "lrn-custom-hints-container";
+
+      // 3. Insert the Mount Point into the DOM (as a sibling)
+      if (stimulusCollection.length > 0) {
+        stimulusCollection[0].insertAdjacentElement(
+          "afterend",
+          this.hintsMountPoint
+        );
+      } else {
+        // Fallback: append to main wrapper if no stimulus
+        wrapper.appendChild(this.hintsMountPoint);
+      }
+
+      this.hintsRoot = ReactDOM.createRoot(this.hintsMountPoint);
+
+      this.hintsRoot.render(
+        <Hints
+        // content={init.question.hints} // Assuming your JSON has a 'hints' field
+        // isVisible={true}
+        />
+      );
 
       init.events.trigger("ready");
     });
@@ -143,51 +169,6 @@ export default class Question {
     this.onValidateListener();
   }
 
-  checkTestCase(testCase, responseValue) {
-    try {
-      // 1. Prepare the code
-      // We append "; return functionName;" so we can extract the function handle
-      // regardless of how the user defined it (var, const, or function keyword)
-      const executableCode = `${responseValue}; return solution;`;
-
-      console.log(executableCode);
-
-      // 2. Instantiate
-      const createFunc = new Function(executableCode);
-      const userFunc = createFunc();
-
-      // 3. Prepare Arguments (Deep Copy to prevent mutation issues)
-      const args = Object.keys(testCase.input).map((key) => {
-        // Handle cases where the key might not exist in the object safely
-        const val = testCase.input[key];
-        return typeof val === "object" && val !== null
-          ? JSON.parse(JSON.stringify(val))
-          : val;
-      });
-
-      // 4. EXECUTE & CAPTURE RETURN VALUE
-      // This is the key change: we store the result of the call
-      const result = userFunc(...args);
-
-      return {
-        correct: result == testCase.output,
-        // defines if the execution was successful or not
-        success: true,
-        result: result,
-        input: testCase.input,
-        output: testCase.output,
-      };
-    } catch (error) {
-      return {
-        correct: false,
-        success: false,
-        input: testCase.input,
-        output: testCase.output,
-        error: error.toString(), // e.g. "ReferenceError: maxSubArray is not defined"
-      };
-    }
-  }
-
   formatTestCase(testCaseObj) {
     // We use Object.entries to get pairs of [key, value]
     // e.g., [['nums', [1,2,3]], ['m', 3]]
@@ -212,27 +193,33 @@ export default class Question {
   }
 
   onValidateListener() {
-    const { init } = this;
+    const { init, el } = this;
     const facade = init.getFacade();
     const events = init.events;
+    const responseInputElement = el.querySelector(".lrn_response_input");
 
     events.on("validate", (options) => {
       const { showCorrectAnswers } = options || {};
-      const isValid = facade.isValid(); // true is correct, false incorrect
-      const savedResponse = facade.getResponse();
-
-      const results = init.question.test_cases.map((testCase) =>
-        this.checkTestCase(testCase, savedResponse.value)
+      const validatedTestCases = facade.isValid();
+      console.log(validatedTestCases);
+      const isCorrect = validatedTestCases.every(
+        (testCase) => testCase.correct
       );
 
+      if (isCorrect) {
+        responseInputElement.classList.add("lrn_correct");
+      } else {
+        responseInputElement.classList.add("lrn_incorrect");
+      }
+
       this.renderComponent({
-        validationUIState: isValid ? "correct" : "incorrect",
+        validationUIState: isCorrect ? "correct" : "incorrect",
       });
 
       if (showCorrectAnswers) {
         // const correctAnswer = get(init.question, "valid_response.value");
         this.lrnComponents.suggestedAnswersList.setAnswers(
-          results.map((result, index) => ({
+          validatedTestCases.map((result, index) => ({
             label: `
               <div>
                 <strong style="color: ${result.correct ? "green" : "red"}">${
