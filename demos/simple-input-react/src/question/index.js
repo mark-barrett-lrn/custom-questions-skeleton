@@ -52,7 +52,7 @@ export default class Question {
           componentState={this.componentStates}
           content={init.question}
           renderComponent={this.renderComponent.bind(this)}
-          facade={this.init.getFacade()} // Assuming your JSON has a 'hints' field
+          facade={this.init.getFacade()}
         />
       );
 

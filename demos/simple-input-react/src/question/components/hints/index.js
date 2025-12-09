@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function Hints({content, renderComponent, events, facade}) {
+export default function Hints({content, renderComponent,facade}) {
   const [hint, setHint] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +35,6 @@ Your task:
   const callLLM = () => {
     setLoading(true);
     setHint(""); // clear previous hint
-    console.log(facade.getResponse().value)
 
     const apiKey = null
 
@@ -52,7 +51,7 @@ Your task:
           { role: "user", content: `
               Problem: ${problem}
               User's code:
-              ${facade.getResponse().value}
+              ${facade.getResponse()?.value ?? ""}
           ` }
         ],
       }),
@@ -74,7 +73,7 @@ Your task:
 
   return (
     <div>
-      <button className="client-btn" onClick={callLLM} disabled={loading}>
+      <button className="client-btn" style={{ marginTop: "10px" }} onClick={callLLM} disabled={loading}>
         {loading ? "Loading..." : "I need help"}
       </button>
       {hint && (

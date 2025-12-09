@@ -16,7 +16,6 @@ export default function SimpleInput(props) {
   } = props;
   const isReviewState = state === "review";
   const [inputValue, setInputValue] = useState(responseValue);
-  console.log(tips)
 
   useEffect(() => {
     // reset input value when resetState is 'reset'
@@ -73,18 +72,16 @@ export default function SimpleInput(props) {
 
     const lensesTips = Array.isArray(tips) ? tips.map(tip => ({
       range: {
-        startLineNumber: tip.line,
+        startLineNumber: tip.line + 1,
         startColumn: 1,
-        endLineNumber: tip.line,
-        endColumn: 1,
+        endLineNumber: tip.line + 1,
+        endColumn: 7,
       },
       command: {
         id: commandId,
         title: `⚠️ AI Tip: ${tip.tip}`,
       },
     })) : [];
-
-    console.log(lensesTips)
 
     // 4. Register the Code Lens Provider
     const provider = monaco.languages.registerCodeLensProvider("javascript", {
