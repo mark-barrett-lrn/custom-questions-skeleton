@@ -4,8 +4,11 @@ import ReactDOM from "react-dom/client";
 import ReactDOMServer from "react-dom/server";
 import Editor from "./components/editor";
 import Hints from "./components/hints";
+<<<<<<< Updated upstream
 import TestCase from "./components/test-case";
 import { get } from "lodash";
+=======
+>>>>>>> Stashed changes
 
 export default class Question {
   constructor(init, lrnUtils) {
@@ -49,10 +52,16 @@ export default class Question {
 
       this.hintsRoot.render(
         <Hints
+<<<<<<< Updated upstream
         renderComponent={this.renderComponent}
         componentState={this.componentStates} 
         content={init.question}
         facade={this.init.getFacade()}// Assuming your JSON has a 'hints' field
+=======
+          facade={this.init.getFacade()}
+          // content={init.question.hints} // Assuming your JSON has a 'hints' field
+          // isVisible={true}
+>>>>>>> Stashed changes
         />
       );
 
@@ -223,10 +232,11 @@ export default class Question {
     events.on("validate", (options) => {
       const { showCorrectAnswers } = options || {};
       const validatedTestCases = facade.isValid();
-      console.log(validatedTestCases);
       const isCorrect = validatedTestCases.every(
         (testCase) => testCase.correct
       );
+
+      console.log(validatedTestCases);
 
       if (isCorrect) {
         responseInputElement.classList.add("lrn_correct");
@@ -238,6 +248,7 @@ export default class Question {
         validationUIState: isCorrect ? "correct" : "incorrect",
       });
 
+<<<<<<< Updated upstream
       // const correctAnswer = get(init.question, "valid_response.value");
       this.lrnComponents.suggestedAnswersList.setAnswers(
         validatedTestCases.map((result, index) => ({
@@ -250,6 +261,34 @@ export default class Question {
           ),
         }))
       );
+=======
+      if (showCorrectAnswers) {
+        // const correctAnswer = get(init.question, "valid_response.value");
+        this.lrnComponents.suggestedAnswersList.setAnswers(
+          validatedTestCases.map((result, index) => ({
+            label: `
+              <div>
+                <strong style="color: ${result.correct ? "green" : "red"}">${
+              result.correct ? "✅" : "❌"
+            } Case ${index + 1}</strong><br/>
+                <small>Input</small><br/>
+                <code>
+                ${this.formatTestCase(result.input)}
+                </code><br/>
+                <small>Output</small><br/>
+                <span style="color: ${result.correct ? "green" : "red"};">
+                ${result.error ? result.error : result.result}
+                </span><br/>
+                <small>Expected</small><br/>
+                <span style="color: green;">
+                ${result.output}
+                </span>
+              </div>
+            `,
+          }))
+        );
+      }
+>>>>>>> Stashed changes
     });
   }
 }

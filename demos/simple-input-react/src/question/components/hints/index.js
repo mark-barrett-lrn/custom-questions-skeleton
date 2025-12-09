@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 
-export default function Hints({renderComponent, componentState, content, facade}) {
+export default function Hints({
+  renderComponent,
+  componentState,
+  content,
+  facade,
+}) {
   const [hint, setHint] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -29,43 +34,48 @@ Your task:
 - Keep JSON concise and parsable.
 `;
 
-
-  const problem = content.stimulus
+  const problem = content.stimulus;
 
   const callLLM = () => {
     setLoading(true);
     setHint("");
 
-    const apiKey = "NONE"
+    const apiKey = "NONE";
 
     fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
         messages: [
           { role: "system", content: prompt },
-          { role: "user", content: `
+          {
+            role: "user",
+            content: `
               Problem: ${problem}
               User's code:
               ${facade.getResponse().value}
-          ` }
+          `,
+          },
         ],
       }),
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         let raw = data.choices[0].message.content;
-        raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
-        const parsed = JSON.parse(raw)
+        raw = raw
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+        const parsed = JSON.parse(raw);
         setHint(parsed.comment);
-        componentState['tips'] = parsed.tips
-        renderComponent()
+        componentState["tips"] = parsed.tips;
+        renderComponent();
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         setHint("Failed to get hint");
       })
@@ -78,9 +88,7 @@ Your task:
         {loading ? "Loading..." : "I need help"}
       </button>
       {hint && (
-        <div style={{ marginTop: "10px", fontWeight: "bold" }}>
-          {hint}
-        </div>
+        <div style={{ marginTop: "10px", fontWeight: "bold" }}>{hint}</div>
       )}
     </div>
   );
