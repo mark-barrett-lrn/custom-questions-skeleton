@@ -2,8 +2,46 @@
   <span data-lrn-qe-label="stimulus"></span>
   <span data-lrn-qe-input="stimulus" class="lrn-qe-ckeditor-lg"></span>
 
-  <span data-lrn-qe-label="max_length"></span>
-  <span data-lrn-qe-input="max_length"></span>
+  <div class="lrn-qe-form-group-wrapper">
+    <div class="lrn-qe-form-group">
+      <label class="lrn-qe-label">Test Cases</label>
+      <div class="lrn-qe-form-control">
+        <div data-lrn-qe-loop="test_cases">
+          <div class="row">
+            <div class="col-xs-6">
+              <label class="lrn-qe-label">Input</label>
+              <span data-lrn-qe-input="input"></span>
+            </div>
+
+            <div class="col-xs-5">
+              <label class="lrn-qe-label">Output (Expected Result)</label>
+              <span data-lrn-qe-input="output"></span>
+            </div>
+
+            <div class="col-xs-1">
+              <button
+                type="button"
+                class="btn btn-default"
+                data-lrn-qe-action-remove
+              >
+                <span class="ls-icon ls-delete"></span>
+              </button>
+            </div>
+          </div>
+
+          <hr class="lrn-qe-section-divider" />
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-lrn-qe-action-add="test_cases"
+        >
+          Add New Test Case
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Validation -->
   <span
