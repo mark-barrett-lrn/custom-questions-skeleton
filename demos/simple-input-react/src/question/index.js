@@ -12,7 +12,7 @@ export default class Question {
     this.lrnUtils = lrnUtils;
     this.el = init.$el.get(0);
     // object to store React component states
-    this.componentStates = {};
+    this.componentStates = {'tips': []};
 
     this.render().then(() => {
       this.registerPublicMethods();
@@ -47,8 +47,10 @@ export default class Question {
 
       this.hintsRoot.render(
         <Hints
-        // content={init.question.hints} // Assuming your JSON has a 'hints' field
-        // isVisible={true}
+        renderComponent={this.renderComponent}
+        componentState={this.componentStates} 
+        content={init.question}
+        facade={this.init.getFacade()}// Assuming your JSON has a 'hints' field
         />
       );
 
@@ -112,6 +114,7 @@ export default class Question {
         validationUIState={this.componentStates.validationUIState}
         resetState={resetState}
         testCases={question.test_cases}
+        tips={this.componentStates.tips}
       />
     );
   }
@@ -122,6 +125,7 @@ export default class Question {
       this.renderComponent({ resetState: "attemptedAfterReset" });
     }
     this.events.trigger("changed", value);
+
   };
 
   resetValidationUIState = () => {

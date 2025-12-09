@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import classnames from "classnames";
-import Editor from "@monaco-editor/react";
+import Editor, { useMonaco } from "@monaco-editor/react";
 export default function SimpleInput(props) {
   const {
     state,
@@ -12,9 +12,11 @@ export default function SimpleInput(props) {
     onChange,
     resetState,
     testCases,
+    tips
   } = props;
   const isReviewState = state === "review";
   const [inputValue, setInputValue] = useState(responseValue);
+  console.log(state)
 
   useEffect(() => {
     // reset input value when resetState is 'reset'
@@ -56,6 +58,52 @@ export default function SimpleInput(props) {
   //   setInputValue(getDefaultValue());
   // }, []);
 
+  const monaco = useMonaco();
+  const [editor, setEditor] = useState(null); // 1. Create state for the editor
+
+  useEffect(() => {
+    // 2. Wait for BOTH monaco and the editor instance to be ready
+    if (!monaco || !editor) return;
+
+    // 3. Define the command that runs when you click the lens
+    // We use the editor instance to add a command, which returns a unique ID string.
+    const commandId = editor.addCommand(0, () => {
+      alert("You clicked the AI suggestion!");
+    });
+
+    // 4. Register the Code Lens Provider
+    const provider = monaco.languages.registerCodeLensProvider("javascript", {
+      provideCodeLenses: function (model, token) {
+        return {
+          lenses: [
+            {
+              range: {
+                startLineNumber: 8,
+                startColumn: 1,
+                endLineNumber: 8,
+                endColumn: 1,
+              },
+              command: {
+                id: commandId, // Use the ID we generated above
+                title:
+                  "⚠️ AI Tip: This line will cause a bug because i < nums.length - 1",
+              },
+            },
+          ],
+          dispose: () => {},
+        };
+      },
+      resolveCodeLens: function (model, codeLens, token) {
+        return codeLens;
+      },
+    });
+
+    // Cleanup when component unmounts
+    return () => {
+      provider.dispose();
+    };
+  }, [monaco, editor]); // Re-run this effect when editor is set
+
   return (
     <div className="lrn_widget lrn_shorttext">
       <div className={resValidatedClassNames}>
@@ -67,6 +115,7 @@ export default function SimpleInput(props) {
           onChange={onInputChange}
           onFocus={onInputFocus}
           disabled={isReviewState || disabled}
+          onMount={(editorInstance) => setEditor(editorInstance)}
         />
       </div>
     </div>
