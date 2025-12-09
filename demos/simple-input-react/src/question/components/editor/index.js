@@ -12,9 +12,11 @@ export default function SimpleInput(props) {
     onChange,
     resetState,
     testCases,
+    tips
   } = props;
   const isReviewState = state === "review";
   const [inputValue, setInputValue] = useState(responseValue);
+  console.log(tips)
 
   useEffect(() => {
     // reset input value when resetState is 'reset'
@@ -69,25 +71,27 @@ export default function SimpleInput(props) {
       alert("You clicked the AI suggestion!");
     });
 
+    const lensesTips = Array.isArray(tips) ? tips.map(tip => ({
+      range: {
+        startLineNumber: tip.line,
+        startColumn: 1,
+        endLineNumber: tip.line,
+        endColumn: 1,
+      },
+      command: {
+        id: commandId,
+        title: `⚠️ AI Tip: ${tip.tip}`,
+      },
+    })) : [];
+
+    console.log(lensesTips)
+
     // 4. Register the Code Lens Provider
     const provider = monaco.languages.registerCodeLensProvider("javascript", {
       provideCodeLenses: function (model, token) {
         return {
-          lenses: [
-            {
-              range: {
-                startLineNumber: 8,
-                startColumn: 1,
-                endLineNumber: 8,
-                endColumn: 1,
-              },
-              command: {
-                id: commandId, // Use the ID we generated above
-                title:
-                  "⚠️ AI Tip: This line will cause a bug because i < nums.length - 1",
-              },
-            },
-          ],
+          lenses: lensesTips
+          ,
           dispose: () => {},
         };
       },
@@ -100,7 +104,7 @@ export default function SimpleInput(props) {
     return () => {
       provider.dispose();
     };
-  }, [monaco, editor]); // Re-run this effect when editor is set
+  }, [monaco, editor, tips]); // Re-run this effect when editor is set
 
   return (
     <div className="lrn_widget lrn_shorttext">

@@ -14,7 +14,7 @@ export default class Question {
     this.lrnUtils = lrnUtils;
     this.el = init.$el.get(0);
     // object to store React component states
-    this.componentStates = { tips: [] };
+    this.componentStates = {};
 
     this.render().then(() => {
       this.registerPublicMethods();
@@ -49,9 +49,9 @@ export default class Question {
 
       this.hintsRoot.render(
         <Hints
-          renderComponent={this.renderComponent}
           componentState={this.componentStates}
           content={init.question}
+          renderComponent={this.renderComponent.bind(this)}
           facade={this.init.getFacade()} // Assuming your JSON has a 'hints' field
         />
       );
