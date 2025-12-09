@@ -33,8 +33,8 @@ $request = '{
             ],
           "max_length": 10,
           "valid_response": {
-            "value": "Sydney",
-            "score": 3
+            "output": [6,1,23],
+            "score": 5
            },
           "js": {
             "question": "/dist/question.js",
