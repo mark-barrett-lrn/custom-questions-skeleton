@@ -6,23 +6,23 @@
     <div class="lrn-qe-form-group">
       <label class="lrn-qe-label">Test Cases</label>
       <div class="lrn-qe-form-control">
-        <div data-lrn-qe-loop="test_cases">
+        <div data-lrn-qe-loop="test_cases[*]">
           <div class="row">
             <div class="col-xs-6">
               <label class="lrn-qe-label">Input</label>
-              <span data-lrn-qe-input="input"></span>
+              <span data-lrn-qe-input="test_cases[*].input"></span>
             </div>
 
             <div class="col-xs-5">
               <label class="lrn-qe-label">Output (Expected Result)</label>
-              <span data-lrn-qe-input="output"></span>
+              <span data-lrn-qe-input="test_cases[*].output"></span>
             </div>
 
             <div class="col-xs-1">
               <button
                 type="button"
                 class="btn btn-default"
-                data-lrn-qe-action-remove
+                data-lrn-qe-action-remove="test_cases[*]"
               >
                 <span class="ls-icon ls-delete"></span>
               </button>
