@@ -6,13 +6,17 @@ namespace Composer\Autoload;
 
 class ComposerStaticInitcc2331ec00534562fdc62f8fd8c525cc
 {
-    public static $prefixesPsr0 = array (
-        'L' => 
+    public static $prefixLengthsPsr4 = array (
+        'L' =>
         array (
-            'LearnositySdk\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/learnosity/learnosity-sdk-php/src',
-            ),
+            'LearnositySdk\\' => 14,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'LearnositySdk\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/learnosity/learnosity-sdk-php/src',
         ),
     );
 
@@ -23,7 +27,8 @@ class ComposerStaticInitcc2331ec00534562fdc62f8fd8c525cc
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixesPsr0 = ComposerStaticInitcc2331ec00534562fdc62f8fd8c525cc::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitcc2331ec00534562fdc62f8fd8c525cc::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitcc2331ec00534562fdc62f8fd8c525cc::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInitcc2331ec00534562fdc62f8fd8c525cc::$classMap;
 
         }, null, ClassLoader::class);
