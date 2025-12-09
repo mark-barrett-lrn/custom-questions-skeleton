@@ -1,8 +1,10 @@
 import React from "react";
 import { PREFIX } from "./constants";
 import ReactDOM from "react-dom/client";
+import ReactDOMServer from "react-dom/server";
 import Editor from "./components/editor";
 import Hints from "./components/hints";
+import TestCase from "./components/test-case";
 import { get } from "lodash";
 
 export default class Question {
@@ -91,6 +93,7 @@ export default class Question {
 
       this.reactRoot = ReactDOM.createRoot(reactDomContainer);
       this.renderComponent();
+      this.renderTestCases();
     });
   }
 
@@ -196,6 +199,21 @@ export default class Question {
       .join("\n"); // Join them with a new line for a clean list
   }
 
+  renderTestCases() {
+    const question = this.init.question.test_cases.map((testCase) => testCase);
+    this.lrnComponents.suggestedAnswersList.setAnswers(
+      question.map((result, index) => ({
+        label: ReactDOMServer.renderToStaticMarkup(
+          <TestCase
+            result={result}
+            index={index}
+            formatTestCase={this.formatTestCase}
+          />
+        ),
+      }))
+    );
+  }
+
   onValidateListener() {
     const { init, el } = this;
     const facade = init.getFacade();
@@ -220,32 +238,18 @@ export default class Question {
         validationUIState: isCorrect ? "correct" : "incorrect",
       });
 
-      if (showCorrectAnswers) {
-        // const correctAnswer = get(init.question, "valid_response.value");
-        this.lrnComponents.suggestedAnswersList.setAnswers(
-          validatedTestCases.map((result, index) => ({
-            label: `
-              <div>
-                <strong style="color: ${result.correct ? "green" : "red"}">${
-              result.correct ? "✅" : "❌"
-            } Case ${index + 1}</strong><br/>
-                <small>Input</small><br/>
-                <code>
-                ${this.formatTestCase(result.input)}
-                </code><br/>
-                <small>Output</small><br/>
-                <span style="color: ${result.correct ? "green" : "red"};">
-                ${result.result}
-                </span><br/>
-                <small>Expected</small><br/>
-                <span style="color: green;">
-                ${result.output}
-                </span>
-              </div>
-            `,
-          }))
-        );
-      }
+      // const correctAnswer = get(init.question, "valid_response.value");
+      this.lrnComponents.suggestedAnswersList.setAnswers(
+        validatedTestCases.map((result, index) => ({
+          label: ReactDOMServer.renderToStaticMarkup(
+            <TestCase
+              result={result}
+              index={index}
+              formatTestCase={this.formatTestCase}
+            />
+          ),
+        }))
+      );
     });
   }
 }
