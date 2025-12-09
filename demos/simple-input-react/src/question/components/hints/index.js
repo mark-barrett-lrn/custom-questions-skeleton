@@ -34,7 +34,7 @@ Your task:
 
   const callLLM = () => {
     setLoading(true);
-    setHint(""); // clear previous hint
+    setHint("");
 
     const apiKey = "NONE"
 
