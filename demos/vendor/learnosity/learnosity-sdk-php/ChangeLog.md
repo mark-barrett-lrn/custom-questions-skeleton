@@ -8,6 +8,48 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.1.0] - 2025-07-30
+### Fixed
+- Fixed Quickstart app so that it runs in a Docker container or with a local PHP server
+
+### Refactor
+- Upgraded PHP version to 8.3
+- Update minimum supported version to PHP 7.2 and higher
+- Remove testing of older PHP versions
+
+## [v1.0.5] - 2024-10-14
+### Fixed
+- Fixed the signature mismatch issue.
+- Fixed the issue while running the 'make quickstart'
+- Fixed an inconsistency with encoding to JSON
+- Fixed incorrect replacement of SERVICE_ITEMS_API by SERVICE_EVENTS_API
+  in services not requiring `user_id` in the security packet
+- Fixed handling of `user_id` in security packet for services not
+  requiring it
+
+## [v1.0.4] - 2024-07-11
+### Added
+- Added composable services for signature generation.
+
+### Refactor
+- Refactored the signature generation to use composable services.
+
+## [v1.0.3] - 2024-04-07
+### Added
+- Rename author-aide to authoraide
+- Support author aide
+
+## [v1.0.2] - 2023-07-03
+### Added
+- PHP 7.1 is now the minimum supported version.
+
+## [v1.0.1] - 2023-06-28
+### Added
+- PSR-4 compliance
+
+### Security
+- Upgraded signature to match the security standard.
+
 ## [v1.0.0] - 2021-06-01
 ### Added
 - PHP 7 to PHP 8 are supported.

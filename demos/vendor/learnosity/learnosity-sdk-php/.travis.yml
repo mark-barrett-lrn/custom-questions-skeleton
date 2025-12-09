@@ -1,15 +1,75 @@
-language: php
-php:
-  - '7.0'
-  - '7.1'
-  - '7.2'
-  - '7.3'
-  - '7.4'
-  - '8.0'
+matrix:
+  fast_finish: true
+  include:
+    - php: '7.2'
+      language: php
+      dist: bionic
+      env:
+        - COMPOSER_COMMAND=install
+    - php: '7.2'
+      language: php
+      dist: bionic
+      env:
+        - COMPOSER_COMMAND=update
 
-env:
-  - COMPOSER_COMMAND=install
-  - COMPOSER_COMMAND=update
+    - php: '7.3'
+      language: php
+      dist: bionic
+      env:
+        - COMPOSER_COMMAND=install
+    - php: '7.3'
+      language: php
+      dist: bionic
+      env:
+        - COMPOSER_COMMAND=update
+
+    - php: '7.4'
+      language: php
+      dist: focal
+      env:
+        - COMPOSER_COMMAND=install
+    - php: '7.4'
+      language: php
+      dist: focal
+      env:
+        - COMPOSER_COMMAND=update
+
+    - php: '8.0'
+      language: php
+      dist: focal
+      env:
+        - COMPOSER_COMMAND=install
+    - php: '8.0'
+      language: php
+      dist: focal
+      env:
+        - COMPOSER_COMMAND=update
+
+    - php: '8.1.2'
+      language: php
+      dist: focal
+      env:
+        - COMPOSER_COMMAND=install
+    - php: '8.1.2'
+      language: php
+      dist: focal
+      env:
+        - COMPOSER_COMMAND=update
+
+    - php: '8.3'
+      language: php
+      dist: focal
+      env:
+        - COMPOSER_COMMAND=install
+    - php: '8.3'
+      language: php
+      dist: focal
+      env:
+        - COMPOSER_COMMAND=update
+
+before_install:
+  # Login to docker hub
+  - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 install:
   - composer ${COMPOSER_COMMAND}
