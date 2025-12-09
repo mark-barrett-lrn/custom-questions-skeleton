@@ -10,11 +10,11 @@ $request = '{
         {
           "response_id": "' . $responseId . '",
           "type": "custom",
-          "stimulus": "<p>Given an integer array <code>nums</code>, find the <strong>subarray</strong> with the largest sum, and return <em>its sum</em>.</p>",
+          "stimulus": "<p>\n  Given an integer array <code>nums</code>, find the\n  <strong>subarray</strong> with the largest sum, and return <em>its sum</em>.\n</p>\n",
           "test_cases": [
             {
                 "input": {
-                "nums": [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+                    "nums": [-2, 1, -3, 4, -1, 2, 1, -5, 4]
                 },
                 "output": 6
             },

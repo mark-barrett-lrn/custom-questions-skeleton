@@ -1,83 +1,141 @@
-SED=$(shell which gsed || which sed)
-VERSION=$(shell git describe | $(SED) s/^v//)
-DIST_PREFIX=learnosity_sdk-
-DIST=$(DIST_PREFIX)$(VERSION)
+ARGS_PHPUNIT ?=
 
-COMPOSER=composer
-COMPOSER_INSTALL_FLAGS=--no-suggest --no-interaction
+DOCKER := $(if $(LRN_SDK_NO_DOCKER),,$(shell which docker))
+DOCKER_COMPOSE := docker compose
 
-PHPUNIT=./vendor/bin/phpunit
+# PHP Evolution
+SUPPORTED_PHP_VERSIONS = 7.1 7.2 7.3 7.4 8.0 8.1 8.2 8.3
+PHP_VERSION ?= $(lastword ${SUPPORTED_PHP_VERSIONS})
+DEBIAN_VERSION-7.1 = buster
+DEBIAN_VERSION-7.2 = buster
+DEBIAN_VERSION-7.3 = bullseye
+DEBIAN_VERSION-7.4 = bullseye
+DEBIAN_VERSION-8.0 = bullseye
+DEBIAN_VERSION-def = bookworm
+DEBIAN_VERSION ?= $(or $(DEBIAN_VERSION-$(PHP_VERSION)),$(DEBIAN_VERSION-def))
+COMPOSER_VERSION-7.1 = 2.2
+COMPOSER_VERSION-def = 2.7.6
+COMPOSER_VERSION ?= $(or $(COMPOSER_VERSION-$(PHP_VERSION)),$(COMPOSER_VERSION-def))
 
-all: test dist
+TARGETS = all build devbuild prodbuild \
+	quickstart check-quickstart install-vendor \
+	dist dist-test dist-zip release \
+	lint test test-coverage test-integration-env test-unit \
+	clean clean-dist clean-test clean-vendor
+
+.PHONY: $(TARGETS)
+.default: all
+
+docker-build: install-vendor
+	$(DOCKER_COMPOSE) build php nginx
+
+.PHONY: docker-build
+
+# Local development targets without Docker
+DIST_PREFIX = learnosity_sdk-
+SRC_VERSION := $(shell git describe | sed s/^v//)
+DIST = $(DIST_PREFIX)$(SRC_VERSION)
+
+COMPOSER = composer
+COMPOSER_INSTALL_FLAGS = --no-interaction --optimize-autoloader --classmap-authoritative
+
+PHPCS= ./vendor/bin/phpcs
+PHPUNIT = ./vendor/bin/phpunit
+
+quickstart: $(if $(DOCKER),docker-build) $(if $(DOCKER),docker,local)-quickstart
+
+docker-quickstart: VENDOR_FLAGS = --no-dev
+docker-quickstart: install-vendor
+	$(DOCKER_COMPOSE) up -d
+
+local-quickstart: VENDOR_FLAGS = --no-dev
+local-quickstart: install-vendor
+	php -S localhost:8000 -t docs/quickstart
+
+check-quickstart: vendor/autoload.php
+	$(COMPOSER) install $(COMPOSER_INSTALL_FLAGS) --no-dev;
 
 ###
 # internal tooling rules
 ####
-devbuild: install-vendor-dev
+build: install-vendor
 
-prodbuild: dist
+devbuild: build
+
+prodbuild: VENDOR_FLAGS = --no-dev
+prodbuild: install-vendor
 
 release:
 	@./release.sh
 
-test: install-vendor-dev
-	$(PHPUNIT)
+lint: build
+	$(PHPCS) src
 
-test-unit: install-vendor-dev
-	$(PHPUNIT) --testsuite unit
+test: build
+	$(PHPUNIT) $(if $(subst 7.1,,$(PHP_TARGET)),--do-not-cache-result) $(ARGS_PHPUNIT)
 
-test-integration-env: install-vendor-dev
-	$(PHPUNIT) --testsuite integration
+test-coverage: build
+	XDEBUG_MODE=coverage $(PHPUNIT) --do-not-cache-result $(ARGS_PHPUNIT)
 
-test-dist: dist-test
+test-unit: build
+	$(PHPUNIT) --do-not-cache-result --testsuite unit $(ARGS_PHPUNIT)
 
-build-clean: clean
+test-integration-env: build
+	$(PHPUNIT) --do-not-cache-result --testsuite integration $(ARGS_PHPUNIT)
 
 ###
 # dist rules
-#
-# build a dist zip file from the distdir, THEN run the tests in the dist dir,
-# to avoid polluting the distfile with dev dependencies
 ###
-dist: dist-zip dist-test
+dist: dist-test
 
-# We want to clean first before copying into the .distdir so that we have a clean copy
-dist-zip: clean
-	mkdir -p .$(DIST) # use a hidden directory so that it doesn't get copied into itself
-	cp -R * .$(DIST)
+dist-zip: clean-test clean-dist
+	mkdir -p .$(DIST)
+	cp -R * .version .$(DIST)
 	mv .$(DIST) $(DIST)
-	$(MAKE) -C $(DIST) install-vendor # install the composer vendor inside the dist dir
-	rm $(DIST)/Makefile # this step needs to be the last step before zipping
+	rm -rf $(DIST)/vendor/
+	$(COMPOSER) install --working-dir=$(DIST) $(COMPOSER_INSTALL_FLAGS) --no-dev
+	rm -rf $(DIST)/release.sh
 	zip -qr $(DIST).zip $(DIST)
 
-# run tests in the distdir
-dist-test: dist-zip install-vendor-dev
-	$(PHPUNIT) -c $(DIST)/phpunit.xml
+dist-test: dist-zip install-vendor
+	cd $(DIST) && composer install $(COMPOSER_INSTALL_FLAGS)
+	cd $(DIST) && ./vendor/bin/phpunit --do-not-cache-result --no-logging
 
 ###
 # install vendor rules
 ###
-install-vendor:
-	$(COMPOSER) install $(COMPOSER_INSTALL_FLAGS) --no-dev
+install-vendor: composer.lock
+composer.lock: composer.json
+	$(COMPOSER) install $(COMPOSER_INSTALL_FLAGS) $(VENDOR_FLAGS)
 
-install-vendor-dev:
-	$(COMPOSER) install $(COMPOSER_INSTALL_FLAGS)
-
-###
-# cleaning rules
-###
 clean: clean-dist clean-test clean-vendor
 	rm -rf $(DIST_PREFIX)*.zip
+	$(DOCKER_COMPOSE) down -v
 
 clean-dist:
 	rm -rf $(DIST_PREFIX)*/
 
 clean-test:
-	test ! -f src/tests/junit.xml || rm -f src/tests/junit.xml
-	test ! -f src/tests/coverage.xml || rm -f src/tests/coverage.xml
-	test ! -d src/tests/coverage || rm -rf src/tests/coverage
-	test ! -f .phpunit.result.cache || rm -f .phpunit.result.cache
+	test ! -f tests/junit.xml || rm -f tests/junit.xml
+	test ! -f tests/coverage.xml || rm -f tests/coverage.xml
+	test ! -d tests/coverage || rm -rf tests/coverage
 
 clean-vendor:
-	test ! -d vendor || rm -r vendor
-	test ! -f composer.lock || rm -f composer.lock
+	rm -rf vendor
+	rm -f composer.lock
+
+# Package contents
+PKG_CONTENTS = .version \
+	CONTRIBUTING.md LICENSE.md README.md REFERENCE.md ChangeLog.md \
+	composer.json bootstrap.php phpunit.xml \
+	docs src
+
+$(DIST):
+	mkdir -p $(DIST)
+	cp -R $(PKG_CONTENTS) $(DIST)
+
+$(DIST)/vendor: $(DIST)
+	cd $(DIST) && $(COMPOSER) install $(COMPOSER_INSTALL_FLAGS) --no-dev
+
+$(DIST).zip: $(DIST)/vendor
+	zip -qr $(DIST).zip $(DIST)
