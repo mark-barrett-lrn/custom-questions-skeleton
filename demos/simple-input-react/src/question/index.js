@@ -4,11 +4,8 @@ import ReactDOM from "react-dom/client";
 import ReactDOMServer from "react-dom/server";
 import Editor from "./components/editor";
 import Hints from "./components/hints";
-<<<<<<< Updated upstream
 import TestCase from "./components/test-case";
 import { get } from "lodash";
-=======
->>>>>>> Stashed changes
 
 export default class Question {
   constructor(init, lrnUtils) {
@@ -17,7 +14,7 @@ export default class Question {
     this.lrnUtils = lrnUtils;
     this.el = init.$el.get(0);
     // object to store React component states
-    this.componentStates = {'tips': []};
+    this.componentStates = { tips: [] };
 
     this.render().then(() => {
       this.registerPublicMethods();
@@ -52,16 +49,10 @@ export default class Question {
 
       this.hintsRoot.render(
         <Hints
-<<<<<<< Updated upstream
-        renderComponent={this.renderComponent}
-        componentState={this.componentStates} 
-        content={init.question}
-        facade={this.init.getFacade()}// Assuming your JSON has a 'hints' field
-=======
-          facade={this.init.getFacade()}
-          // content={init.question.hints} // Assuming your JSON has a 'hints' field
-          // isVisible={true}
->>>>>>> Stashed changes
+          renderComponent={this.renderComponent}
+          componentState={this.componentStates}
+          content={init.question}
+          facade={this.init.getFacade()} // Assuming your JSON has a 'hints' field
         />
       );
 
@@ -137,7 +128,6 @@ export default class Question {
       this.renderComponent({ resetState: "attemptedAfterReset" });
     }
     this.events.trigger("changed", value);
-
   };
 
   resetValidationUIState = () => {
@@ -248,20 +238,6 @@ export default class Question {
         validationUIState: isCorrect ? "correct" : "incorrect",
       });
 
-<<<<<<< Updated upstream
-      // const correctAnswer = get(init.question, "valid_response.value");
-      this.lrnComponents.suggestedAnswersList.setAnswers(
-        validatedTestCases.map((result, index) => ({
-          label: ReactDOMServer.renderToStaticMarkup(
-            <TestCase
-              result={result}
-              index={index}
-              formatTestCase={this.formatTestCase}
-            />
-          ),
-        }))
-      );
-=======
       if (showCorrectAnswers) {
         // const correctAnswer = get(init.question, "valid_response.value");
         this.lrnComponents.suggestedAnswersList.setAnswers(
@@ -288,7 +264,6 @@ export default class Question {
           }))
         );
       }
->>>>>>> Stashed changes
     });
   }
 }
