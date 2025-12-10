@@ -14,22 +14,23 @@ export default class Scorer {
       // regardless of how the user defined it (var, const, or function keyword)
       const executableCode = `${this.responseValue}; return solution;`;
 
-      console.log(executableCode);
-
       // 2. Instantiate
       const createFunc = new Function(executableCode);
       const userFunc = createFunc();
 
-      // 3. Prepare Arguments (Deep Copy to prevent mutation issues)
-      const args = Object.keys(testCase.input).map((key) => {
+      // 3. Parse input if it's a string (JSON format)
+      const inputObj = JSON.parse(testCase.input);
+
+      // 4. Prepare Arguments (Deep Copy to prevent mutation issues)
+      const args = Object.keys(inputObj).map((key) => {
         // Handle cases where the key might not exist in the object safely
-        const val = testCase.input[key];
+        const val = inputObj[key];
         return typeof val === "object" && val !== null
           ? JSON.parse(JSON.stringify(val))
           : val;
       });
 
-      // 4. EXECUTE & CAPTURE RETURN VALUE
+      // 5. EXECUTE & CAPTURE RETURN VALUE
       // This is the key change: we store the result of the call
       const result = userFunc(...args);
 
@@ -38,14 +39,14 @@ export default class Scorer {
         // defines if the execution was successful or not
         success: true,
         result: result,
-        input: testCase.input,
+        input: inputObj,
         output: testCase.output,
       };
     } catch (error) {
       return {
         correct: false,
         success: false,
-        input: testCase.input,
+        input: inputObj,
         output: testCase.output,
         error: error.toString(), // e.g. "ReferenceError: maxSubArray is not defined"
       };

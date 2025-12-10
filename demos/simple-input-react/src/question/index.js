@@ -226,8 +226,6 @@ export default class Question {
         (testCase) => testCase.correct
       );
 
-      console.log(validatedTestCases);
-
       if (isCorrect) {
         responseInputElement.classList.add("lrn_correct");
       } else {

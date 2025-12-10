@@ -13,21 +13,15 @@ $request = '{
           "stimulus": "<h2>Maximum Subarray</h2><br/><p>\n  Given an integer array <code>nums</code>, find the\n  <strong>subarray</strong> with the largest sum, and return <em>its sum</em>.\n</p>\n<br />\n<p><strong>Example 1:</strong></p>\n<pre><strong>Input:</strong> nums = [-2,1,-3,4,-1,2,1,-5,4]\n<strong>Output:</strong> 6\n<strong>Explanation:</strong> The subarray [4,-1,2,1] has the largest sum 6.\n</pre>\n",
           "test_cases": [
             {
-                "input": {
-                    "nums": [-2, 1, -3, 4, -1, 2, 1, -5, 4]
-                },
+                "input": "{\"nums\": [-2, 1, -3, 4, -1, 2, 1, -5, 4]}",
                 "output": 6
             },
             {
-                "input": {
-                "nums": [1]
-                },
+                "input": "{\"nums\": [1]}",
                 "output": 1
             },
             {
-                "input": {
-                "nums": [5, 4, -1, 7, 8]
-                },
+                "input": "{\"nums\": [5, 4, -1, 7, 8]}",
                 "output": 23
             }
             ],

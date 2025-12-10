@@ -12,7 +12,7 @@ export default function SimpleInput(props) {
     onChange,
     resetState,
     testCases,
-    tips
+    tips,
   } = props;
   const isReviewState = state === "review";
   const [inputValue, setInputValue] = useState(responseValue);
@@ -48,7 +48,8 @@ export default function SimpleInput(props) {
   const getDefaultValue = () => {
     // The default value for the editor is a single function called "solution"
     // that takes params based on the first test cases args
-    return `function solution(${Object.keys(testCases[0].input).join(", ")}) {
+    const parsedInput = JSON.parse(testCases[0].input);
+    return `function solution(${Object.keys(parsedInput).join(", ")}) {
   // enter your solution here
 }`;
   };
@@ -70,25 +71,26 @@ export default function SimpleInput(props) {
       alert("You clicked the AI suggestion!");
     });
 
-    const lensesTips = Array.isArray(tips) ? tips.map(tip => ({
-      range: {
-        startLineNumber: tip.line + 1,
-        startColumn: 1,
-        endLineNumber: tip.line + 1,
-        endColumn: 7,
-      },
-      command: {
-        id: commandId,
-        title: `⚠️ AI Tip: ${tip.tip}`,
-      },
-    })) : [];
+    const lensesTips = Array.isArray(tips)
+      ? tips.map((tip) => ({
+          range: {
+            startLineNumber: tip.line + 1,
+            startColumn: 1,
+            endLineNumber: tip.line + 1,
+            endColumn: 7,
+          },
+          command: {
+            id: commandId,
+            title: `⚠️ AI Tip: ${tip.tip}`,
+          },
+        }))
+      : [];
 
     // 4. Register the Code Lens Provider
     const provider = monaco.languages.registerCodeLensProvider("javascript", {
       provideCodeLenses: function (model, token) {
         return {
-          lenses: lensesTips
-          ,
+          lenses: lensesTips,
           dispose: () => {},
         };
       },
